@@ -1,38 +1,35 @@
-import Link from "next/link";
-import { prisma } from "@/db";
-import { TodoItem } from "@/components/TodoItem";
+import { Product } from "../../typings.d";
+import { addProduct } from "../../actions/serverActions";
+import AddProductButton from "@/components/AddProductButton";
 
-type Repository = {
-  id: number
-  name: string
-  full_name: string
-}
-
-function getTodos(){
-  return prisma.todo.findMany()
-}
-
-async function toggleTodo(id: string, complete: boolean){
-  "use server"
-  await prisma.todo.update({where: {id}, data: {complete}})
-}
-
-export default async function Home() {
-  const todos = await getTodos()
-  const res = await fetch('https://api.github.com/repos/vercel/next.js')
-  const data: Repository = await res.json()
+export default async function Home(){
+  const res = await fetch('https://64f6fe599d7754084952ec7e.mockapi.io/products/', {
+    cache: 'no-cache',
+    next: {
+      tags: ["products"]
+    }
+  })
+  const products: Product[] = await res.json()
 
   return (
-  <>
-  <header className="flex justify-between items-center mb-4">
-    <h1 className="text-2xl">Todos</h1>
-    <Link className="border border-slate-300 text-slate-300 px-2 py-1 rounded hover:bg-slate-700 focus-within:bg-slate-700 outline-none" href="/new">New</Link>
-  </header>
-  <ul className="pl-4">
-    {todos.map(todo=>(
-      <TodoItem key={todo.id} {...todo} toggleTodo={toggleTodo} />
-    ))}
-  </ul>
-  <h1>{data.full_name}</h1>
-  </>
-)}
+  <main className="">
+    <h1 className="text-3xl font-bold text-center">Product Warehouse</h1>
+    <form action={addProduct} className="flex flex-col gap-5 max-w-xl mx-auto p-5">
+      <input name="product" type="text" placeholder="Enter product here ..." className="border border-gray-300 p-2 rounded-md text-black" />
+      <input name="price" type="text" placeholder="Enter price here ..." className="border border-gray-300 p-2 rounded-md text-black" />
+      <button className="border bg-blue-500 text-white p-2 rounded-md">Add Product</button>
+    </form>
+
+    <h2>List of Products</h2>
+    <div className="flex flex-wrap gap-5 text-white">
+      {products.map((product)=>(
+        <div key={product.id} className="p-5 shadow">
+          <p>{product.product}</p>
+          <p>${product.price}</p>
+        </div>
+      ))}
+    </div>
+    <AddProductButton />
+  </main>
+  )
+}

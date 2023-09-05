@@ -3,10 +3,6 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 
-type Time = {
-  datetime: string;
-}
-
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -19,19 +15,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-    const res = await fetch(
-      'http://worldtimeapi.org/api/timezone/America/Chicago',
-      {
-        next: {
-          revalidate: 5,
-        }
-      }
-    );
-    const data: Time = await res.json()
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-slate-800 text-slate-100 container mx-auto p-4`}>
-      <h1 className="font-bold text-3xl text-white-400">{data.datetime}</h1>{children}</body>
+      <body className={`${inter.className} bg-slate-800 text-slate-100 container mx-auto p-4`}>{children}</body>
     </html>
   )
 }
